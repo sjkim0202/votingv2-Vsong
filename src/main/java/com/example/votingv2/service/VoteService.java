@@ -105,10 +105,9 @@ public class VoteService {
         VoteItem selectedItem = items.get(itemIndex);
 
         try {
-            // ✅ 블록체인 먼저 처리
             blockchainVoteService.submitVoteAsServer(vote.getBlockchainVoteId(), BigInteger.valueOf(itemIndex));
+            logger.info("✅ 블록체인 투표 완료");
 
-            // ✅ 블록체인 성공 후 DB 저장
             VoteResult voteResult = VoteResult.builder()
                     .user(user)
                     .vote(vote)
@@ -116,17 +115,19 @@ public class VoteService {
                     .votedAt(LocalDateTime.now())
                     .build();
             voteResultRepository.save(voteResult);
+            logger.info("✅ 투표 결과 DB 저장 완료");
 
         } catch (Exception e) {
+            logger.error("❌ 블록체인 혹은 DB 저장 실패", e);
             throw new RuntimeException("투표 실패", e);
         }
     }
 
 
 
-    /**
-     * 투표 단건 조회 (항목 포함)
-     */
+        /**
+         * 투표 단건 조회 (항목 포함)
+         */
     public VoteResponse getVoteById(Long id) {
         Vote vote = voteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID의 투표가 존재하지 않습니다."));
