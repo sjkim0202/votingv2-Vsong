@@ -104,18 +104,19 @@ public class VoteService {
 
         VoteItem selectedItem = items.get(itemIndex);
 
-        // DB 저장
-        VoteResult voteResult = VoteResult.builder()
-                .user(user)
-                .vote(vote)
-                .voteItem(selectedItem)
-                .votedAt(LocalDateTime.now())
-                .build();
-        voteResultRepository.save(voteResult);
-
-
         try {
+            // ✅ 블록체인 먼저 처리
             blockchainVoteService.submitVoteAsServer(vote.getBlockchainVoteId(), BigInteger.valueOf(itemIndex));
+
+            // ✅ 블록체인 성공 후 DB 저장
+            VoteResult voteResult = VoteResult.builder()
+                    .user(user)
+                    .vote(vote)
+                    .voteItem(selectedItem)
+                    .votedAt(LocalDateTime.now())
+                    .build();
+            voteResultRepository.save(voteResult);
+
         } catch (Exception e) {
             throw new RuntimeException("투표 실패", e);
         }
