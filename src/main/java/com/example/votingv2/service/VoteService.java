@@ -91,6 +91,11 @@ public class VoteService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
 
+        // ✅ 중복 검사
+        if (voteResultRepository.existsByUserAndVote(user, vote)) {
+            throw new IllegalStateException("이미 참여한 투표입니다.");
+        }
+
         List<VoteItem> items = voteItemRepository.findByVote(vote);
         if (itemIndex < 0 || itemIndex >= items.size()) {
             throw new IllegalArgumentException("항목 인덱스 오류");
