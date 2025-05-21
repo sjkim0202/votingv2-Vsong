@@ -92,7 +92,8 @@ public class VoteService {
                 .orElseThrow(() -> new IllegalArgumentException("사용자 없음"));
 
         // ✅ 중복 검사
-        if (voteResultRepository.existsByUserAndVote(user, vote)) {
+        Optional<VoteResult> result = voteResultRepository.findByUserIdAndVoteId(user.getId(), vote.getId());
+        if (result.isPresent()) {
             throw new IllegalStateException("이미 참여한 투표입니다.");
         }
 
